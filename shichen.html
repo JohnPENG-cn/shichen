@@ -28,6 +28,13 @@ svg text{font-family:inherit}.dial{display:block;margin:auto;width:100%;max-widt
 .seasons{display:flex;gap:6px}.seasons button{flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;border-radius:12px;padding:8px 0}.seasons button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
 .list div{display:flex;justify-content:space-between;padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer}.list div.cur{color:var(--acc)}
 .disc{font-size:12px;color:var(--sub);text-align:center;margin:16px 0}
+.fig{display:flex;gap:10px;align-items:flex-start;margin:10px 0}.fig svg{flex:0 0 132px;width:132px;height:158px}
+.fig .rt{font-size:14px;line-height:1.7}.fig .rt small{display:block;color:var(--sub);font-size:11px;margin-top:4px}
+.body{fill:none;stroke:var(--sub);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.55}
+.mpath{fill:none;stroke:var(--acc);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.pt{fill:var(--gold);stroke:var(--card);stroke-width:1.5}.ptl{font-size:11px;fill:var(--gold);font-weight:bold}
+.acu{border:1px dashed var(--gold);border-radius:12px;padding:8px 10px;margin:6px 0;font-size:14px;line-height:1.6}
+.acu b{color:var(--gold)}.acu .w{color:#c0392b;font-size:12px}
 </style></head><body>
 <h1>十二时辰</h1><div class="date" id="date"></div>
 <section class="page on" id="p1">
@@ -65,9 +72,30 @@ const SEA=[["春","发陈","春三月，此谓发陈，天地俱生，万物以�
 ["冬","闭藏","冬三月，此谓闭藏，水冰地坼，无扰乎阳，早卧晚起，必待日光，使志若伏若匿……去寒就温，无泄皮肤……此冬气之应，养藏之道也。","早睡晚起，待日出再活动；保暖，少大汗，藏精养神。"]];
 const $=id=>document.getElementById(id);let sel=null;
 function idx(d){return Math.floor(((d.getHours()+1)%24)/2)}
+
+const BODY='<circle cx="100" cy="22" r="14"/><path d="M100 36V44M70 50Q100 42 130 50L124 90Q122 110 122 130H78Q78 110 76 90Z"/><path d="M70 50L58 95L50 135L46 150M130 50L142 95L150 135L154 150"/><path d="M88 130L86 180L84 225L78 233M112 130L114 180L116 225L122 233"/>';
+const PRESS='拇指指腹按揉约1分钟，以酸胀为度，两侧都按';
+const M=[
+["前","胆经：从外眼角绕到头侧，经肩膀沿身体侧面、大腿和小腿外侧，下到第四脚趾。","M110 18L116 12L114 28L124 48L128 80L124 120L118 150L120 200L123 232",[["阳陵泉","膝盖外下方，摸到小腿外侧一个骨头小突起（腓骨小头），其前下方凹陷处",120,186],["肩井","肩膀最高处、脖子根到肩头的中点",120,49,"孕妇忌按"]]],
+["前","肝经：从大脚趾背面起，沿小腿、大腿内侧上行，经小腹到胁肋（乳头下方肋骨处）。","M117 234L115 226L110 180L104 140L106 128L116 104L120 82",[["太冲","脚背上，大脚趾与第二脚趾之间往脚背推，推到两骨交汇前的凹陷处",117,226]]],
+["前","肺经：从胸口外上方（锁骨下）起，沿手臂内侧靠拇指一侧下行，到拇指尖。","M122 58L128 52L138 90L146 130L152 148",[["尺泽","手臂伸直，肘横纹上、摸到那根粗筋的拇指一侧凹陷处",139,92],["太渊","手腕横纹靠拇指一侧、摸到脉搏跳动处（轻按即可）",147,134]]],
+["前","大肠经：从食指尖起，沿手臂外侧（拇指侧）上到肩，经脖子到鼻翼旁。","M155 150L150 132L143 95L132 52L108 40L104 26",[["合谷","手背虎口处，拇指和食指并拢时肌肉隆起的最高点",153,145,"孕妇忌按"],["曲池","屈肘，肘横纹外侧尽头凹陷处",144,93]]],
+["前","胃经：从眼睛下方起，经面颊、颈部，沿胸腹正中线外侧下行，经大腿前侧、小腿外侧，到第二脚趾。","M106 22L108 34L114 60L110 110L114 150L118 200L121 232",[["足三里","外侧膝眼往下四横指，离小腿骨（胫骨）外侧一横指",118,188],["天枢","肚脐左右各旁开三横指（约2寸）",111,106]]],
+["前","脾经：从大脚趾内侧起，经内踝前，沿小腿、大腿内侧上行，经腹部到胸部外侧。","M115 233L112 222L109 180L103 140L114 110L124 66",[["三阴交","内踝尖往上四横指，小腿骨（胫骨）后缘",111,206,"孕妇忌按"],["阴陵泉","膝盖内侧下方，沿小腿骨内侧往上推到推不动的凹陷处",108,176]]],
+["前","心经：从腋窝起，沿手臂内侧靠小指一侧下行，到小指尖。","M128 58L134 94L142 136L146 152",[["神门","手腕横纹靠小指一侧、一根小筋的内侧凹陷处",142,136],["极泉","腋窝正中，摸到动脉跳动处（轻按即可）",128,60]]],
+["背","小肠经：从小指外侧起，沿手臂外后侧上行，绕肩胛骨，经脖子侧面到耳前。","M154 150L148 130L141 92L130 54L118 62L108 40L113 24",[["后溪","握拳时，小指根后方、掌横纹尽头的凸起处",150,144],["天宗","肩胛骨正中央的凹陷处（可请家人按或用网球靠墙滚）",118,64]]],
+["背","膀胱经：从内眼角起，越过头顶，沿后脑、后背脊柱两旁下行，经大腿后侧、腘窝、小腿后侧，到小脚趾外侧。","M103 20L103 6L104 30L107 44L108 60L108 125L111 150L114 180L116 210L121 224L123 233",[["委中","膝盖后面腘窝横纹的正中",114,180],["昆仑","外踝尖与跟腱之间的凹陷处",120,222,"孕妇忌按"]]],
+["前","肾经：从脚底起，经内踝后，沿小腿、大腿内侧上行，贴近腹部正中线到胸口。","M118 236L112 222L108 180L102 135L104 110L106 60",[["太溪","内踝尖与跟腱之间的凹陷处",111,221],["涌泉","脚底前1/3处，脚趾蜷起时出现的凹陷（图中示意于足部）",118,235]]],
+["前","心包经：从胸口乳头外侧起，经腋下，沿手臂内侧正中下行，到中指尖。","M122 62L128 58L138 94L147 136L151 154",[["内关","手腕横纹往上三横指，两根筋之间",146,124],["劳宫","握拳时中指尖点到的掌心处",150,146]]],
+["背","三焦经：从无名指起，沿手背、手臂外侧正中上行到肩，经颈侧绕耳后到眉梢。","M152 152L147 130L140 92L128 50L112 38L116 24L110 16",[["外关","手背腕横纹往上三横指，两根骨头之间（正对内关）",147,122],["中渚","手背上，无名指与小指掌骨之间、指根后方凹陷处",151,146]]]];
+function fig(i){const m=M[i];let pts=m[3].map((p,k)=>`<circle class="pt" cx="${p[2]}" cy="${p[3]}" r="4.5"/><text class="ptl" x="${p[2]>140?p[2]-14:p[2]+8}" y="${p[3]+4}">${k+1}</text>`).join('');
+return `<div class="fig"><svg viewBox="40 0 130 240" aria-label="经络示意"><g class="body">${BODY}</g><path class="mpath" d="${m[2]}"/>${pts}<text x="44" y="236" style="font-size:12px;fill:var(--sub)">${m[0]}面 · 示意</text></svg>
+<div class="rt"><b style="color:var(--acc)">在哪里</b><br>${m[1]}<small>红线为大致走向示意（只画一侧，左右对称），不代表精确位置。</small></div></div>
+${m[3].map((p,k)=>`<div class="acu"><b>${k+1}. ${p[0]}</b>　${p[1]}。<br><span style="color:var(--sub)">按法：${PRESS}。</span>${p[4]?` <span class="w">⚠ ${p[4]}</span>`:''}</div>`).join('')}`}
 function detail(i){const s=S[i];return `<h2>${s[0]}时 · ${s[1]}</h2><span class="tag">${s[2]} 当令</span><span class="tag">后世子午流注学说</span>
+${fig(i)}
 <div class="row"><b>作息</b><span>${s[3]}</span></div><div class="row"><b>饮食</b><span>${s[4]}</span></div><div class="row"><b>运动</b><span>${s[5]}</span></div><div class="row"><b>情志</b><span>${s[6]}</span></div><div class="row"><b>宜忌</b><span>${s[7]}</span></div>
-<div class="q">${s[8]}<cite>——《${s[9]}》</cite></div><div class="note">经络时辰配属出自后世子午流注学说；引文为内经论该脏腑之原文。</div>`}
+<div class="q">${s[8]}<cite>——《${s[9]}》</cite></div><div class="note">经络时辰配属出自后世子午流注学说；引文为内经论该脏腑之原文。穴位按揉为日常保健参考，皮肤破损、孕期、急症请勿自行按压，不适就医。</div>`}
 function dial(cur,now){let h='';const R=150,r=95;for(let i=0;i<12;i++){const a0=(i*30-15-90-0)*Math.PI/180,a1=a0+Math.PI/6;// 子 at top
 const p=(a,R)=>[Math.cos(a)*R,Math.sin(a)*R];const[A,B,C,D]=[p(a0,R),p(a1,R),p(a1,r),p(a0,r)];const m=p(a0+Math.PI/12,(R+r)/2);
 const on=i===cur,sl=i===sel;h+=`<g class="seg" data-i="${i}"><path d="M${A}A${R},${R} 0 0 1 ${B}L${C}A${r},${r} 0 0 0 ${D}Z" fill="${on?'var(--acc)':sl?'var(--gold)':'var(--card)'}" stroke="var(--line)" stroke-width="1.5"/>
